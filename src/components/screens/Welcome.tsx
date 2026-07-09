@@ -44,9 +44,16 @@ export default function Welcome({ onStart }: WelcomeProps) {
         Nuestro Comienzo
       </motion.h1>
 
-      <p className="max-w-md font-body text-text-secondary">
-        Una historia que empieza en nuestro apartamento y termina con una pregunta.
-      </p>
+      <div className="flex max-w-md flex-col gap-4 font-body text-text-secondary">
+        <p>Dicen que algunas historias comienzan con un instante inolvidable. La nuestra fue diferente.</p>
+        <p>
+          Todo surgió de la manera más natural: entre conversaciones, risas y momentos compartidos. Sin
+          buscarlo, nuestra amistad fue creciendo hasta convertirse en algo mucho más especial, casi sin
+          que nos diéramos cuenta.
+        </p>
+        <p>Cada paso nos acercará a un momento muy especial.</p>
+        <p>¿Lista para comenzar? ❤️</p>
+      </div>
 
       <p className="font-subheading text-sm text-text-secondary">
         Llevamos {days} días, {hours} h, {minutes} m y {seconds} s conociéndonos
