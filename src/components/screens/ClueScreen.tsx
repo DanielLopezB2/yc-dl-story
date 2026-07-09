@@ -24,6 +24,7 @@ export default function ClueScreen() {
         Pista {clue.id} de {CLUES.length}
       </span>
       <h2 className="font-heading text-4xl text-text">{clue.place}</h2>
+      {clue.detail && <p className="font-subheading text-lg text-primary">{clue.detail}</p>}
       <p className="font-body text-text-secondary">Busca cerca de: {clue.object}</p>
       <CodeInput expectedCode={clue.code} onSuccess={handleSuccess} />
       <button

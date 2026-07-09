@@ -2,6 +2,7 @@ export interface Clue {
   id: number
   place: string
   object: string
+  detail?: string
   code: string
 }
 
@@ -15,7 +16,13 @@ export const CLUES: Clue[] = [
   { id: 3, place: 'Closet', object: 'Ramo pequeño', code: 'AMOR3' },
   { id: 4, place: 'Escritorio', object: 'Caja', code: 'AMOR4' },
   { id: 5, place: 'Cocina', object: 'Dulce', code: 'AMOR5' },
-  { id: 6, place: 'Puerta de salida', object: 'Carta final', code: 'AMOR6' },
+  {
+    id: 6,
+    place: 'Hanashi',
+    object: 'Carta final',
+    detail: 'Ak 7 #58-42, Bogotá — 4:00 p.m.',
+    code: 'AMOR6',
+  },
 ]
 
 export const REASONS: string[] = [
