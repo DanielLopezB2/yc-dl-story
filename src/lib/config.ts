@@ -11,7 +11,7 @@ export const START_DATE = '2026-01-21'
 export const YOUTUBE_VIDEO_ID = 'gV4yxZSBtac'
 
 export const CLUES: Clue[] = [
-  { id: 1, place: 'Sofá', object: 'Chocolate', code: 'AMOR1' },
+  { id: 1, place: 'Cocina', object: 'Donde están las proteínas', code: 'AMOR1' },
   { id: 2, place: 'Mesa de noche', object: 'Carta', code: 'AMOR2' },
   { id: 3, place: 'Closet', object: 'Ramo pequeño', code: 'AMOR3' },
   { id: 4, place: 'Escritorio', object: 'Caja', code: 'AMOR4' },
