@@ -14,7 +14,7 @@ export const CLUES: Clue[] = [
   { id: 1, place: 'Cocina', object: 'Donde están las proteínas', code: 'AMOR1' },
   { id: 2, place: 'Mesa de noche', object: 'Carta', code: 'AMOR2' },
   { id: 3, place: 'Closet', object: 'Ramo pequeño', code: 'AMOR3' },
-  { id: 4, place: 'Escritorio', object: 'Caja', code: 'AMOR4' },
+  { id: 4, place: 'Escritorio', object: 'Cerca de la maleta o en la maleta', code: 'AMOR4' },
   { id: 5, place: 'Cocina', object: 'Dulce', code: 'AMOR5' },
   {
     id: 6,
