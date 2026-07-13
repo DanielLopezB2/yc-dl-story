@@ -127,7 +127,7 @@ export default function Album({ onBack }: AlbumProps) {
                   <span aria-hidden="true" className="text-3xl">
                     📷
                   </span>
-                  <span className="text-sm">Tocá para elegir una foto</span>
+                  <span className="text-sm">Toca para elegir una foto</span>
                 </>
               )}
             </label>
