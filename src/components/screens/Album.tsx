@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useGoogleDrive, type AlbumPhoto } from '../../hooks/useGoogleDrive'
 
@@ -66,8 +66,19 @@ export default function Album({ onBack }: AlbumProps) {
   const [caption, setCaption] = useState('')
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [selectedPhoto, setSelectedPhoto] = useState<AlbumPhoto | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   const grouped = useMemo(() => groupByMonth(photos), [photos])
+
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null)
+      return
+    }
+    const url = URL.createObjectURL(file)
+    setPreviewUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [file])
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -96,13 +107,47 @@ export default function Album({ onBack }: AlbumProps) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-            aria-label="Elegir foto"
-            className="font-body text-sm text-text-secondary"
-          />
+          <div className="flex flex-col gap-2">
+            <label
+              htmlFor="album-photo-input"
+              className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-primary/40 bg-white px-5 py-6 font-body text-text-secondary transition-colors duration-300 hover:border-gold"
+            >
+              {previewUrl ? (
+                <>
+                  <img
+                    src={previewUrl}
+                    alt="Vista previa de la foto elegida"
+                    className="h-24 w-24 rounded-xl object-cover"
+                  />
+                  <span className="max-w-full truncate text-sm text-text">{file?.name}</span>
+                  <span className="text-xs text-primary underline underline-offset-4">Cambiar foto</span>
+                </>
+              ) : (
+                <>
+                  <span aria-hidden="true" className="text-3xl">
+                    📷
+                  </span>
+                  <span className="text-sm">Tocá para elegir una foto</span>
+                </>
+              )}
+            </label>
+            <input
+              id="album-photo-input"
+              type="file"
+              accept="image/*"
+              onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+              className="sr-only"
+            />
+            {file && (
+              <button
+                type="button"
+                onClick={() => setFile(null)}
+                className="self-center font-body text-xs text-text-secondary underline underline-offset-4"
+              >
+                Quitar foto
+              </button>
+            )}
+          </div>
           <input
             type="text"
             value={caption}
