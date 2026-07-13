@@ -158,3 +158,23 @@ export async function fetchPhotoBlobUrl(token: string, fileId: string): Promise<
   const blob = await res.blob()
   return URL.createObjectURL(blob)
 }
+
+export async function updatePhotoMeta(
+  token: string,
+  fileId: string,
+  { caption, date }: { caption: string; date: string },
+): Promise<void> {
+  await driveFetch(token, `${DRIVE_FILES_URL}/${fileId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ appProperties: { caption, date } }),
+  })
+}
+
+export async function trashPhoto(token: string, fileId: string): Promise<void> {
+  await driveFetch(token, `${DRIVE_FILES_URL}/${fileId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ trashed: true }),
+  })
+}

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useGoogleDrive, type AlbumPhoto } from '../../hooks/useGoogleDrive'
+import Spinner from '../ui/Spinner'
 
 interface AlbumProps {
   onBack: () => void
@@ -61,12 +62,15 @@ function groupByMonth(photos: AlbumPhoto[]): [string, AlbumPhoto[]][] {
 }
 
 export default function Album({ onBack }: AlbumProps) {
-  const { isSignedIn, isLoading, error, photos, signIn, upload } = useGoogleDrive()
+  const { isSignedIn, isConnecting, isLoading, error, photos, signIn, upload, updateCaption, deletePhoto } =
+    useGoogleDrive()
   const [file, setFile] = useState<File | null>(null)
   const [caption, setCaption] = useState('')
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [selectedPhoto, setSelectedPhoto] = useState<AlbumPhoto | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [isEditingCaption, setIsEditingCaption] = useState(false)
+  const [editCaptionValue, setEditCaptionValue] = useState('')
 
   const grouped = useMemo(() => groupByMonth(photos), [photos])
 
@@ -88,6 +92,31 @@ export default function Album({ onBack }: AlbumProps) {
     setCaption('')
   }
 
+  const openPhoto = (photo: AlbumPhoto) => {
+    setSelectedPhoto(photo)
+    setIsEditingCaption(false)
+    setEditCaptionValue(photo.caption)
+  }
+
+  const closePhoto = () => {
+    setSelectedPhoto(null)
+    setIsEditingCaption(false)
+  }
+
+  const handleSaveCaption = async () => {
+    if (!selectedPhoto) return
+    await updateCaption(selectedPhoto.id, selectedPhoto.date, editCaptionValue)
+    setSelectedPhoto((prev) => (prev ? { ...prev, caption: editCaptionValue } : prev))
+    setIsEditingCaption(false)
+  }
+
+  const handleDelete = async () => {
+    if (!selectedPhoto) return
+    if (!window.confirm('¿Eliminar esta foto del álbum?')) return
+    await deletePhoto(selectedPhoto.id)
+    setSelectedPhoto(null)
+  }
+
   return (
     <section className="flex min-h-screen flex-col items-center gap-8 bg-background px-6 py-16 text-center">
       <h2 className="font-heading text-4xl text-text">Nuestro Álbum</h2>
@@ -100,9 +129,11 @@ export default function Album({ onBack }: AlbumProps) {
           <button
             type="button"
             onClick={signIn}
-            className="rounded-full bg-primary px-8 py-3 font-body font-semibold text-white shadow-lg shadow-primary/30"
+            disabled={isConnecting}
+            className="flex items-center gap-2 rounded-full bg-primary px-8 py-3 font-body font-semibold text-white shadow-lg shadow-primary/30 transition-opacity duration-300 disabled:opacity-60"
           >
-            Conectar con Google Drive
+            {isConnecting && <Spinner className="h-4 w-4" />}
+            {isConnecting ? 'Conectando…' : 'Conectar con Google Drive'}
           </button>
         </div>
       ) : (
@@ -189,7 +220,7 @@ export default function Album({ onBack }: AlbumProps) {
                   <motion.button
                     key={photo.id}
                     type="button"
-                    onClick={() => setSelectedPhoto(photo)}
+                    onClick={() => openPhoto(photo)}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     whileHover={{ scale: 1.03, y: -2 }}
@@ -233,7 +264,7 @@ export default function Album({ onBack }: AlbumProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setSelectedPhoto(null)}
+            onClick={closePhoto}
             className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-text/80 px-6 py-10"
           >
             <motion.div
@@ -251,15 +282,65 @@ export default function Album({ onBack }: AlbumProps) {
               />
               <div className="flex flex-col gap-2 px-6 py-5">
                 <span className="font-subheading text-sm text-primary">{fullDate(selectedPhoto.date)}</span>
-                {selectedPhoto.caption && (
-                  <p className="font-body text-text-secondary">{selectedPhoto.caption}</p>
+
+                {isEditingCaption ? (
+                  <div className="flex flex-col gap-2">
+                    <input
+                      type="text"
+                      value={editCaptionValue}
+                      onChange={(event) => setEditCaptionValue(event.target.value)}
+                      aria-label="Editar caption"
+                      autoFocus
+                      className="rounded-full border border-primary/40 bg-white px-4 py-2 text-center font-body text-text outline-none focus-visible:border-gold"
+                    />
+                    <div className="flex justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => void handleSaveCaption()}
+                        disabled={isLoading}
+                        className="flex items-center gap-2 rounded-full bg-primary px-5 py-2 font-body text-sm font-semibold text-white disabled:opacity-60"
+                      >
+                        {isLoading && <Spinner className="h-3.5 w-3.5" />}
+                        Guardar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingCaption(false)}
+                        className="rounded-full px-5 py-2 font-body text-sm text-text-secondary underline underline-offset-4"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {selectedPhoto.caption && (
+                      <p className="font-body text-text-secondary">{selectedPhoto.caption}</p>
+                    )}
+                    <div className="mt-1 flex justify-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingCaption(true)}
+                        className="font-body text-xs text-primary underline underline-offset-4"
+                      >
+                        Editar caption
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleDelete()}
+                        className="font-body text-xs text-text-secondary underline underline-offset-4"
+                      >
+                        Eliminar foto
+                      </button>
+                    </div>
+                  </>
                 )}
               </div>
             </motion.div>
 
             <button
               type="button"
-              onClick={() => setSelectedPhoto(null)}
+              onClick={closePhoto}
               className="rounded-full bg-white px-8 py-3 font-body font-semibold text-text shadow-lg"
             >
               Volver al álbum

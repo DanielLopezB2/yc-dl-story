@@ -6,6 +6,8 @@ import {
   fetchPhotoBlobUrl,
   listPhotos,
   loadGoogleIdentityServices,
+  trashPhoto,
+  updatePhotoMeta,
   uploadPhoto,
   type DrivePhoto,
 } from '../lib/googleDrive'
@@ -20,6 +22,7 @@ interface TokenClient {
 
 export function useGoogleDrive() {
   const [isSignedIn, setIsSignedIn] = useState(false)
+  const [isConnecting, setIsConnecting] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [photos, setPhotos] = useState<AlbumPhoto[]>([])
@@ -50,6 +53,7 @@ export function useGoogleDrive() {
         setError(err instanceof Error ? err.message : 'Error al conectar con Google Drive')
       } finally {
         setIsLoading(false)
+        setIsConnecting(false)
       }
     },
     [loadPhotos],
@@ -61,6 +65,7 @@ export function useGoogleDrive() {
       setError('Falta configurar el Client ID de Google Drive en config.ts.')
       return
     }
+    setIsConnecting(true)
     try {
       await loadGoogleIdentityServices()
       if (!tokenClientRef.current) {
@@ -68,12 +73,16 @@ export function useGoogleDrive() {
           GOOGLE_DRIVE_CLIENT_ID,
           GOOGLE_DRIVE_SCOPE,
           (token) => void handleToken(token),
-          (message) => setError(message),
+          (message) => {
+            setError(message)
+            setIsConnecting(false)
+          },
         )
       }
       tokenClientRef.current.requestAccessToken()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al cargar Google Identity Services')
+      setIsConnecting(false)
     }
   }, [handleToken])
 
@@ -94,5 +103,47 @@ export function useGoogleDrive() {
     [loadPhotos],
   )
 
-  return { isSignedIn, isLoading, error, photos, signIn, upload }
+  const updateCaption = useCallback(async (photoId: string, date: string, newCaption: string) => {
+    if (!tokenRef.current) return
+    setIsLoading(true)
+    setError(null)
+    try {
+      await updatePhotoMeta(tokenRef.current, photoId, { caption: newCaption, date })
+      setPhotos((prev) => prev.map((p) => (p.id === photoId ? { ...p, caption: newCaption } : p)))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al actualizar el caption')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  const deletePhoto = useCallback(async (photoId: string) => {
+    if (!tokenRef.current) return
+    setIsLoading(true)
+    setError(null)
+    try {
+      await trashPhoto(tokenRef.current, photoId)
+      setPhotos((prev) => {
+        const target = prev.find((p) => p.id === photoId)
+        if (target) URL.revokeObjectURL(target.imageUrl)
+        return prev.filter((p) => p.id !== photoId)
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar la foto')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  return {
+    isSignedIn,
+    isConnecting,
+    isLoading,
+    error,
+    photos,
+    signIn,
+    upload,
+    updateCaption,
+    deletePhoto,
+  }
 }
