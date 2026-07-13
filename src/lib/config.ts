@@ -15,7 +15,10 @@ export const YOUTUBE_VIDEO_ID = 'gV4yxZSBtac'
 export const GOOGLE_DRIVE_CLIENT_ID =
   '125155164096-sohc47ki6gu7osdgatr1qe78m9pup67u.apps.googleusercontent.com'
 
-export const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file'
+// Full Drive scope (not drive.file) so a shared "Nuestro Álbum" folder is
+// visible to both accounts once shared — drive.file only sees files/folders
+// the app itself created under the signed-in account.
+export const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive'
 
 export const ALBUM_FOLDER_NAME = 'Nuestro Álbum'
 
