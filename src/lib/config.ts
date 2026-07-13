@@ -12,8 +12,8 @@ export const RELATIONSHIP_START_DATE = '2026-07-11'
 
 export const YOUTUBE_VIDEO_ID = 'gV4yxZSBtac'
 
-// TODO: pegar el OAuth Client ID de Google Cloud Console (termina en .apps.googleusercontent.com)
-export const GOOGLE_DRIVE_CLIENT_ID = ''
+export const GOOGLE_DRIVE_CLIENT_ID =
+  '125155164096-sohc47ki6gu7osdgatr1qe78m9pup67u.apps.googleusercontent.com'
 
 export const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file'
 
