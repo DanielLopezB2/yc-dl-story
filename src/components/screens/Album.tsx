@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useGoogleDrive, type AlbumPhoto } from '../../hooks/useGoogleDrive'
 
 interface AlbumProps {
@@ -21,9 +21,32 @@ const MONTH_LABELS = [
   'Diciembre',
 ]
 
+function parseDateOnly(dateStr: string): Date {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  return new Date(year, (month ?? 1) - 1, day ?? 1)
+}
+
 function monthLabel(monthKey: string): string {
   const [year, month] = monthKey.split('-').map(Number)
   return `${MONTH_LABELS[(month ?? 1) - 1]} ${year}`
+}
+
+function shortDate(dateStr: string): string {
+  return parseDateOnly(dateStr).toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function fullDate(dateStr: string): string {
+  return parseDateOnly(dateStr).toLocaleDateString('es-ES', { dateStyle: 'long' })
+}
+
+function truncateCaption(caption: string): string {
+  const words = caption.trim().split(/\s+/)
+  if (words.length <= 5) return caption
+  return `${words.slice(0, 5).join(' ')}...`
 }
 
 function groupByMonth(photos: AlbumPhoto[]): [string, AlbumPhoto[]][] {
@@ -42,6 +65,7 @@ export default function Album({ onBack }: AlbumProps) {
   const [file, setFile] = useState<File | null>(null)
   const [caption, setCaption] = useState('')
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
+  const [selectedPhoto, setSelectedPhoto] = useState<AlbumPhoto | null>(null)
 
   const grouped = useMemo(() => groupByMonth(photos), [photos])
 
@@ -117,24 +141,32 @@ export default function Album({ onBack }: AlbumProps) {
               <h3 className="font-subheading text-lg text-text">{monthLabel(month)}</h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
                 {monthPhotos.map((photo) => (
-                  <motion.figure
+                  <motion.button
                     key={photo.id}
+                    type="button"
+                    onClick={() => setSelectedPhoto(photo)}
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
+                    whileHover={{ scale: 1.03, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
                     transition={{ duration: 0.3 }}
-                    className="overflow-hidden rounded-2xl bg-white shadow-md"
+                    aria-label={`Ver foto${photo.caption ? `: ${photo.caption}` : ''}`}
+                    className="flex flex-col overflow-hidden rounded-3xl bg-white text-left shadow-md ring-1 ring-primary/10 transition-shadow duration-300 hover:shadow-xl"
                   >
+                    <span className="px-3 pt-3 font-body text-[0.7rem] uppercase tracking-wide text-text-secondary">
+                      {shortDate(photo.date)}
+                    </span>
                     <img
                       src={photo.imageUrl}
                       alt={photo.caption || 'Foto de nuestro álbum'}
-                      className="aspect-square w-full object-cover"
+                      className="mt-2 aspect-square w-full object-cover"
                     />
                     {photo.caption && (
-                      <figcaption className="px-3 py-2 font-body text-xs text-text-secondary">
-                        {photo.caption}
-                      </figcaption>
+                      <span className="px-3 py-2 font-body text-xs text-text-secondary">
+                        {truncateCaption(photo.caption)}
+                      </span>
                     )}
-                  </motion.figure>
+                  </motion.button>
                 ))}
               </div>
             </div>
@@ -149,6 +181,47 @@ export default function Album({ onBack }: AlbumProps) {
       >
         Volver
       </button>
+
+      <AnimatePresence>
+        {selectedPhoto && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedPhoto(null)}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-4 bg-text/80 px-6 py-10"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.3 }}
+              onClick={(event) => event.stopPropagation()}
+              className="flex max-h-full w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white text-center shadow-2xl"
+            >
+              <img
+                src={selectedPhoto.imageUrl}
+                alt={selectedPhoto.caption || 'Foto de nuestro álbum'}
+                className="max-h-[60vh] w-full object-contain bg-background"
+              />
+              <div className="flex flex-col gap-2 px-6 py-5">
+                <span className="font-subheading text-sm text-primary">{fullDate(selectedPhoto.date)}</span>
+                {selectedPhoto.caption && (
+                  <p className="font-body text-text-secondary">{selectedPhoto.caption}</p>
+                )}
+              </div>
+            </motion.div>
+
+            <button
+              type="button"
+              onClick={() => setSelectedPhoto(null)}
+              className="rounded-full bg-white px-8 py-3 font-body font-semibold text-text shadow-lg"
+            >
+              Volver al álbum
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
