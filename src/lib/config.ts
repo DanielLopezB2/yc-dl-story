@@ -12,6 +12,13 @@ export const RELATIONSHIP_START_DATE = '2026-07-11'
 
 export const YOUTUBE_VIDEO_ID = 'gV4yxZSBtac'
 
+// TODO: pegar el OAuth Client ID de Google Cloud Console (termina en .apps.googleusercontent.com)
+export const GOOGLE_DRIVE_CLIENT_ID = ''
+
+export const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file'
+
+export const ALBUM_FOLDER_NAME = 'Nuestro Álbum'
+
 export const CLUES: Clue[] = [
   { id: 1, place: 'Cocina', object: 'Donde están las proteínas', code: 'AMOR1' },
   { id: 2, place: 'Mesa de noche', object: 'Carta', code: 'AMOR2' },

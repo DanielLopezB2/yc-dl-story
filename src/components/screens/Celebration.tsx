@@ -5,7 +5,7 @@ import { RELATIONSHIP_START_DATE } from '../../lib/config'
 import { useProgress } from '../../hooks/useProgress'
 
 export default function Celebration() {
-  const { resetProgress } = useProgress()
+  const { goTo, resetProgress } = useProgress()
   const elapsed = useElapsedSince(RELATIONSHIP_START_DATE)
   const { days, hours, minutes, seconds } = formatElapsed(elapsed)
 
@@ -27,6 +27,16 @@ export default function Celebration() {
       <p className="font-subheading text-sm text-text-secondary">
         Llevamos {days} días, {hours} h, {minutes} m y {seconds} s juntos
       </p>
+
+      <motion.button
+        type="button"
+        onClick={() => goTo('album')}
+        whileHover={{ scale: 1.03 }}
+        whileTap={{ scale: 0.97 }}
+        className="rounded-full bg-primary px-8 py-3 font-body font-semibold text-white shadow-lg shadow-primary/30"
+      >
+        Nuestro álbum
+      </motion.button>
 
       <button
         type="button"

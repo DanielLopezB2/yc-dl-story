@@ -12,6 +12,7 @@ import Reasons from './screens/Reasons'
 import ProposalIntro from './screens/ProposalIntro'
 import ProposalQuestion from './screens/ProposalQuestion'
 import Celebration from './screens/Celebration'
+import Album from './screens/Album'
 
 function renderScreen(
   stage: ReturnType<typeof useProgress>['stage'],
@@ -35,6 +36,8 @@ function renderScreen(
       return <ProposalQuestion onAccept={acceptProposal} />
     case 'celebration':
       return <Celebration />
+    case 'album':
+      return <Album onBack={() => goTo('celebration')} />
   }
 }
 

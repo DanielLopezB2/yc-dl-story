@@ -9,6 +9,7 @@ export type Stage =
   | 'proposalIntro'
   | 'proposalQuestion'
   | 'celebration'
+  | 'album'
 
 export const STAGE_ORDER: Stage[] = [
   'welcome',
@@ -19,6 +20,7 @@ export const STAGE_ORDER: Stage[] = [
   'proposalIntro',
   'proposalQuestion',
   'celebration',
+  'album',
 ]
 
 export interface Progress {
