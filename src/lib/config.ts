@@ -8,6 +8,8 @@ export interface Clue {
 
 export const START_DATE = '2026-01-21'
 
+export const RELATIONSHIP_START_DATE = '2026-07-11'
+
 export const YOUTUBE_VIDEO_ID = 'gV4yxZSBtac'
 
 export const CLUES: Clue[] = [

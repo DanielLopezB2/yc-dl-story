@@ -67,6 +67,14 @@ export function saveProgress(progress: Progress): void {
   }
 }
 
+export function clearProgress(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY)
+  } catch {
+    // localStorage unavailable — nothing to clear
+  }
+}
+
 export function isStageFurther(a: Stage, b: Stage): boolean {
   return STAGE_ORDER.indexOf(a) > STAGE_ORDER.indexOf(b)
 }

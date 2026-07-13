@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { CLUES } from '../lib/config'
 import {
+  clearProgress,
   isStageFurther,
   loadProgress,
   resumeStage,
@@ -24,6 +25,7 @@ interface ProgressContextValue {
   goTo: (stage: Stage) => void
   unlockNextClue: () => void
   acceptProposal: () => void
+  resetProgress: () => void
 }
 
 const ProgressContext = createContext<ProgressContextValue | null>(null)
@@ -55,6 +57,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     goTo('celebration')
   }, [goTo])
 
+  const resetProgress = useCallback(() => {
+    clearProgress()
+    window.location.reload()
+  }, [])
+
   const value = useMemo<ProgressContextValue>(
     () => ({
       stage,
@@ -63,8 +70,17 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       goTo,
       unlockNextClue,
       acceptProposal,
+      resetProgress,
     }),
-    [stage, progress.unlockedCount, progress.proposalAccepted, goTo, unlockNextClue, acceptProposal],
+    [
+      stage,
+      progress.unlockedCount,
+      progress.proposalAccepted,
+      goTo,
+      unlockNextClue,
+      acceptProposal,
+      resetProgress,
+    ],
   )
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>
